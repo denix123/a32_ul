@@ -1,0 +1,28 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CHROME_BROWSER_CHROMEOS_POLICY_TICL_DEVICE_SETTINGS_PROVIDER_H_
+#define CHROME_BROWSER_CHROMEOS_POLICY_TICL_DEVICE_SETTINGS_PROVIDER_H_
+
+#include "base/compiler_specific.h"
+#include "base/macros.h"
+#include "components/invalidation/ticl_settings_provider.h"
+
+namespace policy {
+
+class TiclDeviceSettingsProvider : public invalidation::TiclSettingsProvider {
+ public:
+  TiclDeviceSettingsProvider();
+  virtual ~TiclDeviceSettingsProvider();
+
+  
+  virtual bool UseGCMChannel() const OVERRIDE;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(TiclDeviceSettingsProvider);
+};
+
+}  
+
+#endif  

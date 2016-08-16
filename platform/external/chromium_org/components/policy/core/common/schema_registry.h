@@ -1,0 +1,155 @@
+// Copyright 2013 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef COMPONENTS_POLICY_CORE_COMMON_SCHEMA_REGISTRY_H_
+#define COMPONENTS_POLICY_CORE_COMMON_SCHEMA_REGISTRY_H_
+
+#include <set>
+
+#include "base/basictypes.h"
+#include "base/compiler_specific.h"
+#include "base/memory/ref_counted.h"
+#include "base/observer_list.h"
+#include "base/threading/non_thread_safe.h"
+#include "components/policy/core/common/policy_namespace.h"
+#include "components/policy/core/common/schema.h"
+#include "components/policy/core/common/schema_map.h"
+#include "components/policy/policy_export.h"
+
+namespace policy {
+
+class SchemaMap;
+
+class POLICY_EXPORT SchemaRegistry : public base::NonThreadSafe {
+ public:
+  class POLICY_EXPORT Observer {
+   public:
+    
+    
+    
+    
+    
+    virtual void OnSchemaRegistryUpdated(bool has_new_schemas) = 0;
+
+    
+    virtual void OnSchemaRegistryReady() = 0;
+
+   protected:
+    virtual ~Observer();
+  };
+
+  
+  class POLICY_EXPORT InternalObserver {
+   public:
+    
+    virtual void OnSchemaRegistryShuttingDown(SchemaRegistry* registry) = 0;
+
+   protected:
+    virtual ~InternalObserver();
+  };
+
+  SchemaRegistry();
+  virtual ~SchemaRegistry();
+
+  const scoped_refptr<SchemaMap>& schema_map() const { return schema_map_; }
+
+  
+  void RegisterComponent(const PolicyNamespace& ns,
+                         const Schema& schema);
+
+  
+  virtual void RegisterComponents(PolicyDomain domain,
+                                  const ComponentMap& components);
+
+  virtual void UnregisterComponent(const PolicyNamespace& ns);
+
+  
+  bool IsReady() const;
+
+  
+  
+  
+  void SetReady(PolicyDomain domain);
+
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+
+  void AddInternalObserver(InternalObserver* observer);
+  void RemoveInternalObserver(InternalObserver* observer);
+
+ protected:
+  void Notify(bool has_new_schemas);
+
+  scoped_refptr<SchemaMap> schema_map_;
+
+ private:
+  ObserverList<Observer, true> observers_;
+  ObserverList<InternalObserver, true> internal_observers_;
+  bool domains_ready_[POLICY_DOMAIN_SIZE];
+
+  DISALLOW_COPY_AND_ASSIGN(SchemaRegistry);
+};
+
+class POLICY_EXPORT CombinedSchemaRegistry
+    : public SchemaRegistry,
+      public SchemaRegistry::Observer,
+      public SchemaRegistry::InternalObserver {
+ public:
+  CombinedSchemaRegistry();
+  virtual ~CombinedSchemaRegistry();
+
+  void Track(SchemaRegistry* registry);
+
+  
+  virtual void RegisterComponents(PolicyDomain domain,
+                                  const ComponentMap& components) OVERRIDE;
+  virtual void UnregisterComponent(const PolicyNamespace& ns) OVERRIDE;
+
+  
+  virtual void OnSchemaRegistryUpdated(bool has_new_schemas) OVERRIDE;
+  virtual void OnSchemaRegistryReady() OVERRIDE;
+
+  
+  virtual void OnSchemaRegistryShuttingDown(SchemaRegistry* registry) OVERRIDE;
+
+ private:
+  void Combine(bool has_new_schemas);
+
+  std::set<SchemaRegistry*> registries_;
+  scoped_refptr<SchemaMap> own_schema_map_;
+
+  DISALLOW_COPY_AND_ASSIGN(CombinedSchemaRegistry);
+};
+
+class POLICY_EXPORT ForwardingSchemaRegistry
+    : public SchemaRegistry,
+      public SchemaRegistry::Observer,
+      public SchemaRegistry::InternalObserver {
+ public:
+  
+  
+  explicit ForwardingSchemaRegistry(SchemaRegistry* wrapped);
+  virtual ~ForwardingSchemaRegistry();
+
+  
+  virtual void RegisterComponents(PolicyDomain domain,
+                                  const ComponentMap& components) OVERRIDE;
+  virtual void UnregisterComponent(const PolicyNamespace& ns) OVERRIDE;
+
+  
+  virtual void OnSchemaRegistryUpdated(bool has_new_schemas) OVERRIDE;
+  virtual void OnSchemaRegistryReady() OVERRIDE;
+
+  
+  virtual void OnSchemaRegistryShuttingDown(SchemaRegistry* registry) OVERRIDE;
+
+ private:
+  SchemaRegistry* wrapped_;
+
+  DISALLOW_COPY_AND_ASSIGN(ForwardingSchemaRegistry);
+};
+
+}  
+
+#endif  

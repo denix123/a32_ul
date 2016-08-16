@@ -1,0 +1,28 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef SANDBOX_LINUX_SERVICES_ANDROID_ARM64_UCONTEXT_H_
+#define SANDBOX_LINUX_SERVICES_ANDROID_ARM64_UCONTEXT_H_
+
+#if !defined(__BIONIC_HAVE_UCONTEXT_T)
+#include <asm/sigcontext.h>
+#include <signal.h>
+typedef uint64_t greg_t;
+
+struct ucontext_t {
+  unsigned long uc_flags;
+  struct ucontext* uc_link;
+  stack_t uc_stack;
+  sigset_t uc_sigmask;
+  
+  uint8_t unused[1024 / 8 - sizeof(sigset_t)];
+  
+  struct sigcontext uc_mcontext;
+};
+
+#else
+#include <sys/ucontext.h>
+#endif  
+
+#endif  

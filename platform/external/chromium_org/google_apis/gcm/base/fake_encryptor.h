@@ -1,0 +1,26 @@
+// Copyright (c) 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef GOOGLE_APIS_GCM_BASE_ENCRYPTOR_H_
+#define GOOGLE_APIS_GCM_BASE_ENCRYPTOR_H_
+
+#include "base/compiler_specific.h"
+#include "google_apis/gcm/base/encryptor.h"
+
+namespace gcm {
+
+class FakeEncryptor : public Encryptor {
+ public:
+  virtual ~FakeEncryptor();
+
+  virtual bool EncryptString(const std::string& plaintext,
+                             std::string* ciphertext) OVERRIDE;
+
+  virtual bool DecryptString(const std::string& ciphertext,
+                             std::string* plaintext) OVERRIDE;
+};
+
+}  
+
+#endif  

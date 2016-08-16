@@ -1,0 +1,61 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "base/macros.h"
+#include "base/memory/scoped_ptr.h"
+#include "ui/views/test/views_test_base.h"
+
+namespace views {
+
+class NativeViewHost;
+class NativeViewHostWrapper;
+class Widget;
+
+namespace test {
+
+class NativeViewHostTestBase : public ViewsTestBase {
+ public:
+  NativeViewHostTestBase();
+  virtual ~NativeViewHostTestBase();
+
+  
+  void CreateTopLevel();
+
+  
+  void CreateTestingHost();
+
+  
+  int host_destroyed_count() { return host_destroyed_count_; }
+  void ResetHostDestroyedCount() { host_destroyed_count_ = 0; }
+
+  
+  
+  
+  
+  Widget* CreateChildForHost(gfx::NativeView native_parent_view,
+                             View* parent_view,
+                             View* contents_view,
+                             NativeViewHost* host);
+
+  Widget* toplevel() { return toplevel_.get(); }
+  void DestroyTopLevel();
+
+  NativeViewHost* host() { return host_.get(); }
+  void DestroyHost();
+  NativeViewHost* ReleaseHost();
+
+  NativeViewHostWrapper* GetNativeWrapper();
+
+ private:
+  class NativeViewHostTesting;
+
+  scoped_ptr<Widget> toplevel_;
+  scoped_ptr<NativeViewHost> host_;
+  int host_destroyed_count_;
+
+  DISALLOW_COPY_AND_ASSIGN(NativeViewHostTestBase);
+};
+
+}  
+}  

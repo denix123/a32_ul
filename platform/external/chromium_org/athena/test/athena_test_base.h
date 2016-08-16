@@ -1,0 +1,52 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef ATHENA_TEST_ATHENA_TEST_BASE_H_
+#define ATHENA_TEST_ATHENA_TEST_BASE_H_
+
+#include "athena/test/athena_test_helper.h"
+#include "base/macros.h"
+#include "base/message_loop/message_loop.h"
+#include "testing/gtest/include/gtest/gtest.h"
+
+namespace aura {
+class Window;
+class WindowDelegate;
+}
+
+namespace athena {
+namespace test {
+
+class AthenaTestBase : public testing::Test {
+ public:
+  AthenaTestBase();
+  virtual ~AthenaTestBase();
+
+  
+  virtual void SetUp() OVERRIDE;
+  virtual void TearDown() OVERRIDE;
+
+ protected:
+  void RunAllPendingInMessageLoop();
+
+  scoped_ptr<aura::Window> CreateTestWindow(aura::WindowDelegate* delegate,
+                                            const gfx::Rect& bounds);
+
+  aura::Window* root_window() { return helper_->GetRootWindow(); }
+  aura::WindowTreeHost* host() { return helper_->GetHost(); }
+
+ private:
+  bool setup_called_;
+  bool teardown_called_;
+
+  base::MessageLoopForUI message_loop_;
+  scoped_ptr<AthenaTestHelper> helper_;
+
+  DISALLOW_COPY_AND_ASSIGN(AthenaTestBase);
+};
+
+}  
+}  
+
+#endif  

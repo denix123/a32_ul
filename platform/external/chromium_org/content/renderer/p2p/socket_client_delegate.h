@@ -1,0 +1,47 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CONTENT_RENDERER_P2P_SOCKET_CLIENT_DELEGATE_H_
+#define CONTENT_RENDERER_P2P_SOCKET_CLIENT_DELEGATE_H_
+
+#include <vector>
+
+#include "base/memory/ref_counted.h"
+#include "content/common/p2p_socket_type.h"
+#include "net/base/ip_endpoint.h"
+
+namespace content {
+
+class P2PSocketClient;
+
+class P2PSocketClientDelegate {
+ public:
+  virtual ~P2PSocketClientDelegate() { }
+
+  
+  
+  
+  virtual void OnOpen(const net::IPEndPoint& local_address,
+                      const net::IPEndPoint& remote_address) = 0;
+
+  
+  
+  virtual void OnIncomingTcpConnection(const net::IPEndPoint& address,
+                                       P2PSocketClient* client) = 0;
+
+  
+  virtual void OnSendComplete() = 0;
+
+  
+  virtual void OnError() = 0;
+
+  
+  virtual void OnDataReceived(const net::IPEndPoint& address,
+                              const std::vector<char>& data,
+                              const base::TimeTicks& timestamp) = 0;
+};
+
+}  
+
+#endif  

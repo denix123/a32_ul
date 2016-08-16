@@ -1,0 +1,81 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CHROME_BROWSER_CHROMEOS_LOGIN_SCREENS_CONTROLLER_PAIRING_SCREEN_ACTOR_H_
+#define CHROME_BROWSER_CHROMEOS_LOGIN_SCREENS_CONTROLLER_PAIRING_SCREEN_ACTOR_H_
+
+#include <string>
+
+#include "base/macros.h"
+
+namespace base {
+class DictionaryValue;
+}
+
+namespace content {
+class BrowserContext;
+}
+
+namespace chromeos {
+
+namespace controller_pairing {
+
+extern const char kContextKeyPage[];
+extern const char kContextKeyControlsDisabled[];
+extern const char kContextKeyDevices[];
+extern const char kContextKeyConfirmationCode[];
+extern const char kContextKeySelectedDevice[];
+extern const char kContextKeyAccountId[];
+extern const char kContextKeyEnrollmentDomain[];
+
+extern const char kPageDevicesDiscovery[];
+extern const char kPageDeviceSelect[];
+extern const char kPageDeviceNotFound[];
+extern const char kPageEstablishingConnection[];
+extern const char kPageEstablishingConnectionError[];
+extern const char kPageCodeConfirmation[];
+extern const char kPageHostUpdate[];
+extern const char kPageHostConnectionLost[];
+extern const char kPageEnrollmentIntroduction[];
+extern const char kPageAuthentication[];
+extern const char kPageHostEnrollment[];
+extern const char kPageHostEnrollmentError[];
+extern const char kPagePairingDone[];
+
+extern const char kActionChooseDevice[];
+extern const char kActionRepeatDiscovery[];
+extern const char kActionAcceptCode[];
+extern const char kActionRejectCode[];
+extern const char kActionProceedToAuthentication[];
+extern const char kActionEnroll[];
+extern const char kActionStartSession[];
+
+}  
+
+class ControllerPairingScreenActor {
+ public:
+  class Delegate {
+   public:
+    virtual ~Delegate() {}
+    virtual void OnActorDestroyed(ControllerPairingScreenActor* actor) = 0;
+    virtual void OnScreenContextChanged(const base::DictionaryValue& diff) = 0;
+    virtual void OnUserActed(const std::string& action) = 0;
+  };
+
+  ControllerPairingScreenActor();
+  virtual ~ControllerPairingScreenActor();
+
+  virtual void Show() = 0;
+  virtual void Hide() = 0;
+  virtual void SetDelegate(Delegate* delegate) = 0;
+  virtual void OnContextChanged(const base::DictionaryValue& diff) = 0;
+  virtual content::BrowserContext* GetBrowserContext() = 0;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ControllerPairingScreenActor);
+};
+
+}  
+
+#endif  

@@ -1,0 +1,109 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef ANDROID_WEBVIEW_BROWSER_AW_COOKIE_ACCESS_POLICY_H_
+#define ANDROID_WEBVIEW_BROWSER_AW_COOKIE_ACCESS_POLICY_H_
+
+#include "base/basictypes.h"
+#include "base/lazy_instance.h"
+#include "base/synchronization/lock.h"
+#include "net/base/static_cookie_policy.h"
+#include "net/cookies/canonical_cookie.h"
+#include "net/url_request/url_request.h"
+
+namespace content {
+class ResourceContext;
+}
+
+namespace net {
+class CookieOptions;
+}
+
+class GURL;
+
+namespace android_webview {
+
+class AwCookieAccessPolicy {
+ public:
+  static AwCookieAccessPolicy* GetInstance();
+
+  
+  bool GetShouldAcceptCookies();
+  void SetShouldAcceptCookies(bool allow);
+
+  
+  bool GetShouldAcceptThirdPartyCookies(int render_process_id,
+                                        int render_frame_id);
+  bool GetShouldAcceptThirdPartyCookies(const net::URLRequest& request);
+
+  
+  
+  bool OnCanGetCookies(const net::URLRequest& request,
+                       const net::CookieList& cookie_list);
+  bool OnCanSetCookie(const net::URLRequest& request,
+                      const std::string& cookie_line,
+                      net::CookieOptions* options);
+
+  
+  
+  bool AllowGetCookie(const GURL& url,
+                      const GURL& first_party,
+                      const net::CookieList& cookie_list,
+                      content::ResourceContext* context,
+                      int render_process_id,
+                      int render_frame_id);
+  bool AllowSetCookie(const GURL& url,
+                      const GURL& first_party,
+                      const std::string& cookie_line,
+                      content::ResourceContext* context,
+                      int render_process_id,
+                      int render_frame_id,
+                      net::CookieOptions* options);
+
+ private:
+  friend struct base::DefaultLazyInstanceTraits<AwCookieAccessPolicy>;
+
+  AwCookieAccessPolicy();
+  ~AwCookieAccessPolicy();
+  bool accept_cookies_;
+  base::Lock lock_;
+
+  DISALLOW_COPY_AND_ASSIGN(AwCookieAccessPolicy);
+};
+
+class AwStaticCookiePolicy {
+ public:
+  AwStaticCookiePolicy(bool allow_global_access,
+                       bool allow_third_party_access);
+
+  bool accept_cookies() const {
+    return accept_cookies_;
+  }
+
+  bool accept_third_party_cookies() const {
+    return accept_third_party_cookies_;
+  }
+
+  bool AllowGet(const GURL& url, const GURL& first_party) const;
+  bool AllowSet(const GURL& url, const GURL& first_party) const;
+
+ private:
+  const bool accept_cookies_;
+  const bool accept_third_party_cookies_;
+
+  
+  
+  
+  
+  
+  
+  
+  net::StaticCookiePolicy::Type GetPolicy(const GURL& url) const;
+
+  DISALLOW_COPY_AND_ASSIGN(AwStaticCookiePolicy);
+};
+
+}  
+
+#endif  

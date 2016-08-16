@@ -1,0 +1,118 @@
+// Copyright 2013 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CONTENT_CHILD_SITE_ISOLATION_POLICY_H_
+#define CONTENT_CHILD_SITE_ISOLATION_POLICY_H_
+
+#include <map>
+#include <utility>
+
+#include "base/gtest_prod_util.h"
+#include "base/memory/linked_ptr.h"
+#include "base/strings/string_piece.h"
+#include "content/common/content_export.h"
+#include "content/public/common/resource_type.h"
+#include "url/gurl.h"
+
+namespace content {
+
+struct ResourceResponseInfo;
+
+
+struct SiteIsolationResponseMetaData {
+  enum CanonicalMimeType {
+    HTML = 0,
+    XML = 1,
+    JSON = 2,
+    Plain = 3,
+    Others = 4,
+    MaxCanonicalMimeType,
+  };
+
+  SiteIsolationResponseMetaData();
+
+  std::string frame_origin;
+  GURL response_url;
+  ResourceType resource_type;
+  CanonicalMimeType canonical_mime_type;
+  int http_status_code;
+  bool no_sniff;
+};
+
+class CONTENT_EXPORT SiteIsolationPolicy {
+ public:
+  
+  static void SetPolicyEnabled(bool enabled);
+
+  
+  
+  
+  static linked_ptr<SiteIsolationResponseMetaData> OnReceivedResponse(
+      const GURL& frame_origin,
+      const GURL& response_url,
+      ResourceType resource_type,
+      int origin_pid,
+      const ResourceResponseInfo& info);
+
+  
+  
+  
+  
+  
+  static bool ShouldBlockResponse(
+      linked_ptr<SiteIsolationResponseMetaData>& resp_data, const char* payload,
+      int length, std::string* alternative_data);
+
+private:
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, IsBlockableScheme);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, IsSameSite);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, IsValidCorsHeaderSet);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, SniffForHTML);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, SniffForXML);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, SniffForJSON);
+  FRIEND_TEST_ALL_PREFIXES(SiteIsolationPolicyTest, SniffForJS);
+
+  
+  
+  
+  static SiteIsolationResponseMetaData::CanonicalMimeType GetCanonicalMimeType(
+      const std::string& mime_type);
+
+  
+  
+  static bool IsBlockableScheme(const GURL& frame_origin);
+
+  
+  static bool IsSameSite(const GURL& frame_origin, const GURL& response_url);
+
+  
+  
+  
+  
+  
+  
+  
+  
+  static bool IsValidCorsHeaderSet(const GURL& frame_origin,
+                                   const GURL& website_origin,
+                                   const std::string& access_control_origin);
+
+  static bool SniffForHTML(base::StringPiece data);
+  static bool SniffForXML(base::StringPiece data);
+  static bool SniffForJSON(base::StringPiece data);
+
+  
+  
+  static bool SniffForJS(base::StringPiece data);
+
+  
+  SiteIsolationPolicy() {}
+  ~SiteIsolationPolicy() {}
+
+  DISALLOW_COPY_AND_ASSIGN(SiteIsolationPolicy);
+};
+
+}  
+
+#endif  

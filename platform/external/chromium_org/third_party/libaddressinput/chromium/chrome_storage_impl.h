@@ -1,0 +1,59 @@
+// Copyright 2014 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef THIRD_PARTY_LIBADDRESSINPUT_CHROMIUM_CHROME_STORAGE_IMPL_H_
+#define THIRD_PARTY_LIBADDRESSINPUT_CHROMIUM_CHROME_STORAGE_IMPL_H_
+
+#include <list>
+#include <string>
+
+#include "base/memory/scoped_vector.h"
+#include "base/prefs/pref_store.h"
+#include "base/scoped_observer.h"
+#include "third_party/libaddressinput/src/cpp/include/libaddressinput/storage.h"
+
+class WriteablePrefStore;
+
+namespace autofill {
+
+class ChromeStorageImpl : public ::i18n::addressinput::Storage,
+                          public PrefStore::Observer {
+ public:
+  
+  explicit ChromeStorageImpl(WriteablePrefStore* store);
+  virtual ~ChromeStorageImpl();
+
+  
+  virtual void Put(const std::string& key, std::string* data) OVERRIDE;
+  virtual void Get(const std::string& key, const Callback& data_ready)
+      const OVERRIDE;
+
+  
+  virtual void OnPrefValueChanged(const std::string& key) OVERRIDE;
+  virtual void OnInitializationCompleted(bool succeeded) OVERRIDE;
+
+ private:
+  struct Request {
+    Request(const std::string& key, const Callback& callback);
+
+    std::string key;
+    const Callback& callback;
+  };
+
+  
+  void DoGet(const std::string& key, const Callback& data_ready);
+
+  WriteablePrefStore* backing_store_;  
+
+  
+  ScopedVector<Request> outstanding_requests_;
+
+  ScopedObserver<PrefStore, ChromeStorageImpl> scoped_observer_;
+
+  DISALLOW_COPY_AND_ASSIGN(ChromeStorageImpl);
+};
+
+}  
+
+#endif  

@@ -1,0 +1,69 @@
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#ifndef CHROME_BROWSER_SYNC_GLUE_TYPED_URL_DATA_TYPE_CONTROLLER_H__
+#define CHROME_BROWSER_SYNC_GLUE_TYPED_URL_DATA_TYPE_CONTROLLER_H__
+
+#include <string>
+
+#include "base/compiler_specific.h"
+#include "base/memory/ref_counted.h"
+#include "base/prefs/pref_change_registrar.h"
+#include "base/task/cancelable_task_tracker.h"
+#include "chrome/browser/sync/glue/non_frontend_data_type_controller.h"
+
+class HistoryService;
+
+namespace history {
+class HistoryBackend;
+}
+
+namespace browser_sync {
+
+class ControlTask;
+
+class TypedUrlDataTypeController : public NonFrontendDataTypeController {
+ public:
+  TypedUrlDataTypeController(
+      ProfileSyncComponentsFactory* profile_sync_factory,
+      Profile* profile,
+      ProfileSyncService* sync_service);
+
+  
+  virtual syncer::ModelType type() const OVERRIDE;
+  virtual syncer::ModelSafeGroup model_safe_group() const OVERRIDE;
+  virtual bool ReadyForStart() const OVERRIDE;
+
+  
+  
+  void SetBackend(history::HistoryBackend* backend);
+
+ protected:
+  
+  virtual bool PostTaskOnBackendThread(
+      const tracked_objects::Location& from_here,
+      const base::Closure& task) OVERRIDE;
+  virtual ProfileSyncComponentsFactory::SyncComponents CreateSyncComponents()
+      OVERRIDE;
+  virtual void DisconnectProcessor(
+      sync_driver::ChangeProcessor* processor) OVERRIDE;
+
+ private:
+  virtual ~TypedUrlDataTypeController();
+
+  void OnSavingBrowserHistoryDisabledChanged();
+
+  history::HistoryBackend* backend_;
+  PrefChangeRegistrar pref_registrar_;
+
+  
+  
+  base::CancelableTaskTracker task_tracker_;
+
+  DISALLOW_COPY_AND_ASSIGN(TypedUrlDataTypeController);
+};
+
+}  
+
+#endif  
